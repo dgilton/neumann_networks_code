@@ -121,3 +121,24 @@ class PNG_Stream_ordered1():
         self.counter += batch_size
         array_of_images = np.asarray([load_png(f) for f in batch_list])
         return array_of_images / 255.0
+
+class PNG_Stream_randomorder():
+    def __init__(self, target_directory):
+        filelist = directory_filelist(target_directory)
+        self.full_filelist = [target_directory + single_file for single_file in filelist]
+        self.list_length = len(self.full_filelist) + 1
+        self.counter = 0
+
+    def reshuffle(self):
+        random.shuffle(self.full_filelist)
+        self.counter = 0
+
+    def next_batch(self, batch_size):
+        if self.counter + batch_size > self.list_length :
+            self.reshuffle()
+            
+        batch_list = self.full_filelist[
+                     (self.counter % self.list_length):((self.counter + batch_size) % self.list_length)]
+        self.counter += batch_size
+        array_of_images = np.asarray([load_png(f) for f in batch_list])
+        return array_of_images / 255.0

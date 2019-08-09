@@ -11,12 +11,12 @@ dimension1 = 32
 dimension2 = 32
 color_dimension = 3
 
-blur_kernel = fspecial_gauss(size=5, sigma=2.5)
+blur_kernel = fspecial_gauss(size=5, sigma=2.0)
 blur_kernel_repeat = blur_kernel.reshape((5, 5, 1, 1))
 blur_kernel_repeat = np.repeat(blur_kernel_repeat, color_dimension, axis=2)
 blur_kernel_tensor = tf.constant(blur_kernel_repeat, dtype=tf.float32)
 
-std = 0.01
+std = 0.001
 
 def cs_X_XT(input):
     store_shape = tf.shape(input)

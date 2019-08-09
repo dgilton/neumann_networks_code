@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import scipy.linalg as scl
 
-from learned_component_resnet_nblock import nblock_resnet
+from src.learned_component_resnet_nblock import nblock_resnet
 import os, sys, time
 
 def stdprint(input):
@@ -54,11 +54,12 @@ class GradientDescentNet(object):
             if tf.test.gpu_device_name():
                 with tf.device('/gpu:1'):
                     regularizer_output = self.resnet.network(input=runner, is_training=True,
-                                                             n_residual_blocks=1)
+                                                             n_residual_blocks=2)
             else:
                 regularizer_output = self.resnet.network(input=runner, is_training=True,
-                                                         n_residual_blocks=1)
-            learned_component = -(regularizer_output + runner)
+                                                         n_residual_blocks=2)
+            learned_component = -(regularizer_output)
+            #learned_component = -(regularizer_output + runner)
             runner = linear_component + learned_component
 
         self.output = runner

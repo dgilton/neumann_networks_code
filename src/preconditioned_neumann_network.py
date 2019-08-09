@@ -5,9 +5,9 @@ import scipy.linalg as scl
 # Any preconditioning or pseudoinverse operator may be used. We use
 # cg iterations to calculate an approximate pseudoinverse. Code is based on
 # a similar implementation by MoDL.
-from MoDL_utils import cg_pseudoinverse
+from src.MoDL_utils import cg_pseudoinverse
 
-from learned_component_resnet_nblock import nblock_resnet
+from src.learned_component_resnet_nblock import nblock_resnet
 import os, sys, time
 
 def stdprint(input):
@@ -45,6 +45,7 @@ class PreconditionedNeumannNet(object):
         self.checkpoint_name = ""
         self.has_initialized = False
         self.eta = tf.get_variable(name='eta', initializer=0.1, dtype=tf.float32, trainable=True)
+        self.lambda_variable = tf.get_variable(name='lambda', initializer=0.1, dtype=tf.float32, trainable=True)
 
         network_input = forward_adjoint(corruption_model(self.true_beta))
         network_input = cg_pseudoinverse(forward_gramian=forward_gramian, rhs=network_input, eta=self.eta)
@@ -59,11 +60,11 @@ class PreconditionedNeumannNet(object):
             if tf.test.gpu_device_name():
                 with tf.device('/gpu:1'):
                     regularizer_output = self.resnet.network(input=runner, is_training=True,
-                                                             n_residual_blocks=1)
+                                                             n_residual_blocks=2)
             else:
                 regularizer_output = self.resnet.network(input=runner, is_training=True,
-                                                         n_residual_blocks=1)
-            learned_component = -(regularizer_output + runner)
+                                                         n_residual_blocks=2)
+            learned_component = -self.lambda_variable*(regularizer_output)
             runner = linear_component + learned_component
             neumann_sum = neumann_sum + runner
 

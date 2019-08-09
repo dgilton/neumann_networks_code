@@ -1,6 +1,6 @@
 from src.neumann_network import NeumannNet
 from src.operators_deblur_cifar import blur_gramian, blur_model, blur_noise
-import png_utils_2d as png_utils
+import src.png_utils_2d as png_utils
 import os
 
 def main():
@@ -16,7 +16,7 @@ def main():
     # a numpy array of size [batch_size, image_dimension, image_dimension, color_channels]. All preprocessing happens
     # inside this function, so if you'd like to do preprocessing in tensorflow you'll have to modify the graph in
     # the NeumannNet constructor.
-    filestream = png_utils.PNG_Stream(location_of_clean_data)
+    filestream = png_utils.PNG_Stream_randomorder(location_of_clean_data)
     n_blocks = 6 # B in the Neumann networks paper
     image_dimension = 32 # Current version expects square images. This is easily modified.
     batch_size = 32

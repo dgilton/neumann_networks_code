@@ -1,6 +1,6 @@
-from preconditioned_neumann_network import PreconditionedNeumannNet
+from src.preconditioned_neumann_network import PreconditionedNeumannNet
 from src.operators_deblur_cifar import blur_gramian, blur_model, blur_noise
-import png_utils_2d as png_utils
+import src.png_utils_2d as png_utils
 import os
 
 def main():
@@ -12,7 +12,7 @@ def main():
     checkpoint_folder = cwd + '''/ckpts/'''
     checkpoint_filename = '''pnn_cifar_deblur.ckpt'''
 
-    filestream = png_utils.PNG_Stream(location_of_clean_data)
+    filestream = png_utils.PNG_Stream_randomorder(location_of_clean_data)
     n_blocks = 6  # B in the Neumann networks paper
     image_dimension = 32  # Current version expects square images. This is easily modified.
     batch_size = 32

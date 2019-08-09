@@ -10,8 +10,6 @@ def stdprint(input):
     sys.stdout.flush()
 
 ######################################################
-# Careful with this - this global variable's a kludge and can cause problems if you try to train different networks
-# from a single scope, or load them all at once for example.
 global_step = tf.Variable(0)
 try:
     NUM_THREADS = int(os.environ['OMP_NUM_THREADS'])
@@ -21,8 +19,9 @@ except KeyError:
 
 stdprint("Number of threads available: " + str(NUM_THREADS))
 
+
 ######################################################
-class NeumannNet(object):
+class ProximalGradientNet(object):
     def __init__(self, forward_gramian, corruption_model, forward_adjoint, iterations, image_dimension, batch_size,
                  color_channels, n_training_samples, initial_learning_rate):
         if tf.test.gpu_device_name():
@@ -46,26 +45,23 @@ class NeumannNet(object):
         network_input = forward_adjoint(corruption_model(self.true_beta))
         network_input = self.eta * network_input
         runner = network_input
-        neumann_sum = runner
 
         ############################################################
         # Build the network. Don't do anything else #
         ############################################################
         for ii in range(iterations):
-            linear_component = runner - self.eta * forward_gramian(runner)
+            linear_component = - self.eta * forward_gramian(runner) + network_input
             if tf.test.gpu_device_name():
                 with tf.device('/gpu:1'):
-                    regularizer_output = self.resnet.network(input=runner, is_training=True,
+                    regularizer_output = self.resnet.network(input=linear_component, is_training=True,
                                                              n_residual_blocks=2)
             else:
-                regularizer_output = self.resnet.network(input=runner, is_training=True,
+                regularizer_output = self.resnet.network(input=linear_component, is_training=True,
                                                          n_residual_blocks=2)
-            #learned_component = -(regularizer_output + runner)
             learned_component = -(regularizer_output)
-            runner = linear_component + learned_component
-            neumann_sum = neumann_sum + runner
+            runner = runner + learned_component
 
-        self.output = neumann_sum
+        self.output = runner
 
     def find_initial_conditions(self, checkpoint_location, checkpoint_filename):
         self.checkpoint_name = checkpoint_location + checkpoint_filename
@@ -91,7 +87,7 @@ class NeumannNet(object):
             learning_rate = tf.train.exponential_decay(self.initial_learning_rate, global_step, 500, decay_rate=0.97)
 
             recon_loss = tf.reduce_mean(tf.sqrt(tf.reduce_sum(tf.square(self.true_beta - beta_hat), axis=[1, 2, 3])))
-            optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+            optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=0.999)
             with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
                 gradients, variables = zip(*optimizer.compute_gradients(recon_loss))
                 # gradients, _ = tf.clip_by_global_norm(gradients, 2.0)
