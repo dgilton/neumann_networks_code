@@ -45,6 +45,9 @@ class PreconditionedNeumannNet(object):
         self.checkpoint_name = ""
         self.has_initialized = False
         self.eta = tf.get_variable(name='eta', initializer=0.1, dtype=tf.float32, trainable=True)
+        # This variable was added for "Patchwise Regularization for Inverse Problems in Imaging", but empirically boosts
+        # performance for small datasets - if you're doing experiments with training sets in the size of thousands you
+        # probably won't see much improvement.
         self.lambda_variable = tf.get_variable(name='lambda', initializer=0.1, dtype=tf.float32, trainable=True)
 
         network_input = forward_adjoint(corruption_model(self.true_beta))
