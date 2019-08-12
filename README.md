@@ -69,6 +69,12 @@ See the source files that have the prefix operators_* for more examples.
 Testing is also done by driver scripts, but requires a pretrained checkpoint. Make sure to run
 the find_initial_conditions() method before testing.
 
+An example testing driver script is provided - on my computer it should be as simple as running 
+python cifar_deblur_testing_driver.py . Checkpoints are provided for deblur+noise for the 
+preconditioned Neumann network, the Neumann Network, and Gradient Descent network. Note that 
+the learned component here is different than in the original paper - we have found the new architecture
+improves results both in terms of PSNR and speed.
+
 #### Custom preconditioners
 If you would like to use your own preconditioner, just import it in the header of the 
 preconditioned_neumann_network.py file.
