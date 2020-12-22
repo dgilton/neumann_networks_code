@@ -1,6 +1,11 @@
 # neumann_networks_code
 Neumann Networks for Inverse Problems in Imaging
 
+# This repository is old and busted
+
+Please refer to the PyTorch implementation here: https://github.com/dgilton/iterative_reconstruction_networks
+There appear to be some errors in this code - while some folks can get the networks to train, others have experienced issues. The PyTorch code is much more thoroughly tested and will be more wide-ranging. All the same I'm leaving this code here to remind future generations not to code like I did two years ago.
+
 ## Neumann Networks
 
 This is the repository for code related to *Neumann Networks for Inverse Problems in Imaging*.
